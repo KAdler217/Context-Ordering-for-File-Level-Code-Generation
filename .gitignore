@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# 数据与实验结果（不随仓库分发）
+*.jsonl
+data/
+results/
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db

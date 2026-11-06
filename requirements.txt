@@ -1,0 +1,16 @@
+numpy
+requests
+tqdm
+openai
+scikit-learn
+tree-sitter
+tree-sitter-java
+transformers
+sentence-transformers
+datasets
+fuzzywuzzy
+python-Levenshtein
+rouge
+nltk
+codebleu
+Pillow
