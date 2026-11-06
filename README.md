@@ -15,6 +15,23 @@
 3. **生成**：把重排后的上下文拼进 prompt，调用代码大模型补全目标函数；
 4. **评测**：用行级命中率与文本相似度指标衡量生成质量。
 
+```mermaid
+flowchart LR
+    A["样本 JSONL<br/>file_content + func_name"] --> B["tree-sitter 解析<br/>方法 / 注释 / 调用关系"]
+    B --> C{"上下文排序"}
+    C -->|原始| D1["原始顺序"]
+    C -->|字母序| D2["ABC 顺序"]
+    C -->|相似度| D3["Embedding 顺序"]
+    C -->|贪心| D4["Greedy 顺序"]
+    D1 --> E["拼接 Prompt"]
+    D2 --> E
+    D3 --> E
+    D4 --> E
+    E --> F["代码大模型<br/>DeepSeek-V3 / Qwen"]
+    F --> G["生成的目标函数"]
+    G --> H["评测<br/>行命中率 · ROUGE · CodeBLEU · SBERT"]
+```
+
 ### 排序策略
 
 | 策略 | 脚本 | 做法 |
@@ -24,6 +41,10 @@
 | 全排列 | `All_permutations.py` | 枚举所有可能顺序，用于小规模分析顺序的敏感度 |
 | 嵌入相似度 | `Embedding_order.py` | 按与目标函数的向量相似度降序排列，并按区间分组插入 |
 | 贪心 | `Greedy.py` | 结合嵌入相似度与困惑度逐位选择下一个函数 |
+
+同一组函数、同一个目标，只改变上下文顺序，模型看到的就是不同的提示：
+
+![上下文顺序示意](docs/images/ordering.png)
 
 ### 支撑模块
 
@@ -45,6 +66,7 @@ src/
 ├── demo/                     上下文排序与生成的主实验脚本
 ├── line_metric/              评测：行命中率、ROUGE / BLEU / CodeBLEU / SBERT
 └── huawei/                   图像批处理辅助脚本
+docs/images/                  README 配图
 ```
 
 `src/line_metric/` 中：
@@ -112,6 +134,8 @@ python run_local_eval.py
 ```
 
 行命中率的口径：对生成代码与参考代码逐行做「去空白后精确匹配」，再按选定的分母归一化。它衡量的是**逐行复现**能力，对语义等价但写法不同的代码不友好，因此与 ROUGE / CodeBLEU / SBERT 一起看。
+
+![行命中率示意](docs/images/line-hit.png)
 
 ## 说明与限制
 
